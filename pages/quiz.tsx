@@ -118,7 +118,18 @@ const Quiz = ({ quizName, questions }) => {
       return () => clearInterval(intervalId)
     }, [timer])
 
-    return <div style={{ marginTop: '12px' }}>0: {timer}</div>
+    return (
+      <div
+        style={{
+          marginTop: '14px',
+          fontSize: '20px',
+          fontFamily: ['Courier New', 'monospace'],
+          fontWeight: '600',
+        }}
+      >
+        0:{timer < 10 ? `0${timer}` : timer}
+      </div>
+    )
   }
 
   const GameArea = () => {
@@ -176,9 +187,9 @@ const Quiz = ({ quizName, questions }) => {
 
   const IsCorrectText = ({ isCorrect }) => {
     if (isCorrect) {
-      return <b style={{ color: 'green' }}> (Correct)</b>
+      return <b style={{ color: '#007700' }}> (Correct)</b>
     } else {
-      return <b style={{ color: 'red' }}> (Incorrect)</b>
+      return <b style={{ color: '#ce0000' }}> (Incorrect)</b>
     }
   }
 
