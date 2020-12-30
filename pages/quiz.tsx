@@ -36,7 +36,7 @@ export const getServerSideProps = async (context) => {
 
   const data = fs.readFileSync(`${QUESTIONS_DIR}/${quizName}`, 'utf8')
   return {
-    props: {questions}
+    props: {quizName, questions}
   }
 }
 
@@ -48,7 +48,7 @@ enum GameState {
   GUESSED
 }
 
-const Quiz = ({questions}) => {
+const Quiz = ({quizName, questions}) => {
   const [gameState, setGameState] = useState(GameState.INITIAL)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState([])
@@ -158,12 +158,15 @@ const Quiz = ({questions}) => {
         }
 
         return (
-          <Button
-            variant="contained"
-            onClick={nextQuestionFn}
-          >
-            Next question
-          </Button>
+          <>
+            <p>{prompt}</p>
+            <Button
+              variant="contained"
+              onClick={nextQuestionFn}
+            >
+              Next question
+            </Button>
+          </>
         )
     }
   }
@@ -179,6 +182,7 @@ const Quiz = ({questions}) => {
 
     return (
       <>
+        <h3>Previous question result</h3>
         <p>Correct Answer: {correctAnswer}</p>
         <p>
           Your response: {yourAnswer.input}
@@ -189,6 +193,7 @@ const Quiz = ({questions}) => {
             variant="contained"
             onClick={() => {
               yourAnswer.isCorrect = true
+              yourAnswer.isContested = true
               setAnswers([...answers])
             }}
           >
@@ -199,9 +204,11 @@ const Quiz = ({questions}) => {
     )
   }
 
-  if (gameState === GameState.INITIAL) {
-    return (
-      <Container maxWidth="md">
+  return (
+    <Container maxWidth="md">
+      <h1>{quizName}</h1>
+
+      {gameState === GameState.INITIAL ? (
         <Button
           variant="contained"
           onClick={() => {
@@ -210,27 +217,22 @@ const Quiz = ({questions}) => {
         >
           Start
         </Button>
-      </Container>
-    )
-  }
+      ) : (
+        <Grid
+          container
+          direction="row"
+          spacing={4}
+        >
+          <Grid item lg={8}>
+            <h3>Question {questionIndex + 1} of {questions.length}</h3>
 
-  return (
-    <Container maxWidth="md">
-      <Grid
-        container
-        direction="row"
-        spacing={4}
-      >
-        <Grid item lg={8}>
-          <p>Question {questionIndex + 1} of {questions.length}</p>
-          {/* <p>{prompt}</p> */}
-
-          <GameArea />
+            <GameArea />
+          </Grid>
+          <Grid item lg={4}>
+            <AnswerArea />
+          </Grid>
         </Grid>
-        <Grid item lg={4}>
-          <AnswerArea />
-        </Grid>
-      </Grid>
+      )}
     </Container>
   )
 }
