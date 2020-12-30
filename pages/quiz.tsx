@@ -1,51 +1,51 @@
-import {useRouter} from 'next/router'
-import {Box, Button, Container, Grid, Input, Tab} from '@material-ui/core'
-import React, {useState, useRef, useEffect} from 'react'
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
+import { useRouter } from "next/router";
+import { Box, Button, Container, Grid, Input, Tab } from "@material-ui/core";
+import React, { useState, useRef, useEffect } from "react";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
 
-const fs = require('fs')
-const readline = require('readline')
+const fs = require("fs");
+const readline = require("readline");
 
-export const QUESTIONS_DIR = '/Users/penny/trivia/questions'
+export const QUESTIONS_DIR = "/Users/penny/trivia/questions";
 
 export const getServerSideProps = async (context) => {
-  const {query: {name}} = context
-  const quizName = decodeURIComponent(name)
+  const {
+    query: { name },
+  } = context;
+  const quizName = decodeURIComponent(name);
 
-  const fileStream = fs.createReadStream(`${QUESTIONS_DIR}/${quizName}`)
+  const fileStream = fs.createReadStream(`${QUESTIONS_DIR}/${quizName}`);
   const rl = readline.createInterface({
     input: fileStream,
     crlDelay: Infinity,
-  })
+  });
 
-  const questions = []
+  const questions = [];
 
-  let question = {prompt: ''}
+  let question = { prompt: "" };
   for await (const line of rl) {
-    if (line.startsWith('ANSWER')) {
-      question['answer'] = line
-        .replace('ANSWER: ', '')
-      question.prompt = question.prompt.trim()
-      questions.push(question)
+    if (line.startsWith("ANSWER")) {
+      question["answer"] = line.replace("ANSWER: ", "");
+      question.prompt = question.prompt.trim();
+      questions.push(question);
 
-      question = {prompt: ''}
+      question = { prompt: "" };
     } else {
       // replace everything in brackets or parantheses
-      question['prompt'] += ` ${line.replace(/\((.*?)\)|\[(.*?)\]/g, '')}`
+      question["prompt"] += ` ${line.replace(/\((.*?)\)|\[(.*?)\]/g, "")}`;
     }
   }
 
   return {
-    props: {quizName, questions}
-  }
-}
-
+    props: { quizName, questions },
+  };
+};
 
 enum GameState {
   INITIAL,
@@ -55,82 +55,80 @@ enum GameState {
   VIEW_RESULTS,
 }
 
-const Quiz = ({quizName, questions}) => {
-  const [gameState, setGameState] = useState(GameState.INITIAL)
-  const [questionIndex, setQuestionIndex] = useState(0)
-  const [answers, setAnswers] = useState([])
-  let inputRef = useRef(null)
+const Quiz = ({ quizName, questions }) => {
+  const [gameState, setGameState] = useState(GameState.INITIAL);
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  let inputRef = useRef(null);
 
-  const {prompt, answer} = questions[questionIndex]
+  const { prompt, answer } = questions[questionIndex];
 
   useEffect(() => {
     // autofocus on the first button if no input is present
-    const buttons = document.querySelectorAll('button')
-    const inputs = document.querySelectorAll('input')
+    const buttons = document.querySelectorAll("button");
+    const inputs = document.querySelectorAll("input");
     if (buttons.length > 0 && inputs.length === 0) {
-      buttons[0].focus()
+      buttons[0].focus();
     }
 
-    const synth = window.speechSynthesis
+    const synth = window.speechSynthesis;
     if (gameState === GameState.READING_QUESTION) {
-      const utterance = new SpeechSynthesisUtterance(prompt)
-      utterance.rate = 0.9
+      const utterance = new SpeechSynthesisUtterance(prompt);
+      utterance.rate = 0.9;
       utterance.onend = () => {
-        setGameState(GameState.GUESSING)
-      }
-      synth.speak(utterance)
+        setGameState(GameState.GUESSING);
+      };
+      synth.speak(utterance);
     }
-  })
+  });
 
   const buzzFn = () => {
-    setGameState(GameState.GUESSING)
-    const synth = window.speechSynthesis
-    synth.cancel()
-  }
+    setGameState(GameState.GUESSING);
+    const synth = window.speechSynthesis;
+    synth.cancel();
+  };
 
   const guessFn = () => {
-    setGameState(GameState.GUESSED)
+    setGameState(GameState.GUESSED);
 
-    const input = inputRef.current.value || ''
-    const correctAnswer = answer.replace(/\((.*?)\)|\[(.*?)\]/g, '')
-    const isCorrect = correctAnswer.trim().toLowerCase() === input.trim().toLowerCase()
+    const input = inputRef.current.value || "";
+    const correctAnswer = answer.replace(/\((.*?)\)|\[(.*?)\]/g, "");
+    const isCorrect =
+      correctAnswer.trim().toLowerCase() === input.trim().toLowerCase();
 
-    setAnswers([...answers, {input, correctAnswer, isCorrect}])
-  }
+    setAnswers([...answers, { input, correctAnswer, isCorrect }]);
+  };
 
   const nextQuestionFn = () => {
-    setGameState(GameState.READING_QUESTION)
-    setQuestionIndex(questionIndex + 1)
-  }
+    setGameState(GameState.READING_QUESTION);
+    setQuestionIndex(questionIndex + 1);
+  };
 
   const AnswerTimer = () => {
-    const [timer, setTimer] = useState(15)
+    const [timer, setTimer] = useState(15);
     useEffect(() => {
       if (timer <= 0) {
-        guessFn()
+        guessFn();
       }
 
       const intervalId = setInterval(() => {
-        setTimer(timer - 1)
-      }, 1000)
+        setTimer(timer - 1);
+      }, 1000);
 
-      return () => clearInterval(intervalId)
-    }, [timer])
+      return () => clearInterval(intervalId);
+    }, [timer]);
 
-    return (<div style={{marginTop: '12px'}}>0: {timer}</div>)
-  }
+    return <div style={{ marginTop: "12px" }}>0: {timer}</div>;
+  };
 
   const GameArea = () => {
     switch (gameState) {
       case GameState.READING_QUESTION:
         return (
-          <Button
-            variant="contained"
-            onClick={buzzFn}
-          >
+          <Button variant="contained" onClick={buzzFn}>
             Buzz
           </Button>
-        )
+        );
       case GameState.GUESSING:
         return (
           <>
@@ -139,7 +137,7 @@ const Quiz = ({quizName, questions}) => {
               fullWidth
               onKeyPress={(event) => {
                 if (event.key === "Enter") {
-                  guessFn()
+                  guessFn();
                 }
               }}
               inputRef={inputRef}
@@ -147,7 +145,7 @@ const Quiz = ({quizName, questions}) => {
             />
             <AnswerTimer />
           </>
-        )
+        );
       case GameState.GUESSED:
       default:
         if (questionIndex >= questions.length - 1) {
@@ -155,46 +153,43 @@ const Quiz = ({quizName, questions}) => {
             <Button
               variant="contained"
               onClick={() => {
-                setGameState(GameState.VIEW_RESULTS)
+                setGameState(GameState.VIEW_RESULTS);
               }}
             >
               View results
             </Button>
-          )
+          );
         }
 
         return (
           <>
             <p>{prompt}</p>
             <Box paddingTop={1}>
-              <Button
-                variant="contained"
-                onClick={nextQuestionFn}
-              >
+              <Button variant="contained" onClick={nextQuestionFn}>
                 Next question
               </Button>
             </Box>
           </>
-        )
+        );
     }
-  }
+  };
 
-  const IsCorrectText = ({isCorrect}) => {
+  const IsCorrectText = ({ isCorrect }) => {
     if (isCorrect) {
-      return <b style={{color: 'green'}}> (Correct)</b>
+      return <b style={{ color: "green" }}> (Correct)</b>;
     } else {
-      return <b style={{color: 'red'}}> (Incorrect)</b>
+      return <b style={{ color: "red" }}> (Incorrect)</b>;
     }
-  }
+  };
 
   const AnswerArea = () => {
     if (answers.length === 0) {
-      return <></>
+      return <></>;
     }
 
-    const answerIndex = answers.length - 1
-    const correctAnswer = questions[answerIndex].answer
-    const yourAnswer = answers[answerIndex]
+    const answerIndex = answers.length - 1;
+    const correctAnswer = questions[answerIndex].answer;
+    const yourAnswer = answers[answerIndex];
 
     return (
       <>
@@ -208,17 +203,17 @@ const Quiz = ({quizName, questions}) => {
           <Button
             variant="contained"
             onClick={() => {
-              yourAnswer.isCorrect = true
-              yourAnswer.isContested = true
-              setAnswers([...answers])
+              yourAnswer.isCorrect = true;
+              yourAnswer.isContested = true;
+              setAnswers([...answers]);
             }}
           >
             Contest
           </Button>
         )}
       </>
-    )
-  }
+    );
+  };
 
   const QuizBody = () => {
     switch (gameState) {
@@ -227,22 +222,27 @@ const Quiz = ({quizName, questions}) => {
           <Button
             variant="contained"
             onClick={() => {
-              setGameState(GameState.READING_QUESTION)
+              setGameState(GameState.READING_QUESTION);
             }}
           >
             Start
           </Button>
-        )
+        );
       case GameState.VIEW_RESULTS:
-        const numCorrectAnswers = answers.reduce((numCorrectAnswers, {isCorrect}) => {
-          return isCorrect ? numCorrectAnswers + 1 : numCorrectAnswers
-        }, 0)
-        const totalAnswers = answers.length
+        const numCorrectAnswers = answers.reduce(
+          (numCorrectAnswers, { isCorrect }) => {
+            return isCorrect ? numCorrectAnswers + 1 : numCorrectAnswers;
+          },
+          0
+        );
+        const totalAnswers = answers.length;
 
         return (
           <>
             <p>
-              You got {numCorrectAnswers} out of {totalAnswers} questions correct ({Math.round(100.0 * numCorrectAnswers / totalAnswers)}%)
+              You got {numCorrectAnswers} out of {totalAnswers} questions
+              correct ({Math.round((100.0 * numCorrectAnswers) / totalAnswers)}
+              %)
             </p>
             <TableContainer component={Paper} elevation={3}>
               <Table size="small">
@@ -254,7 +254,12 @@ const Quiz = ({quizName, questions}) => {
                 </TableHead>
                 <TableBody>
                   {answers.map((answer, index) => {
-                    const {input, correctAnswer, isCorrect, isContested} = answer
+                    const {
+                      input,
+                      correctAnswer,
+                      isCorrect,
+                      isContested,
+                    } = answer;
                     return (
                       <TableRow key={index}>
                         <TableCell>{index + 1}</TableCell>
@@ -263,24 +268,22 @@ const Quiz = ({quizName, questions}) => {
                           {input}
                           <IsCorrectText isCorrect={isCorrect} />
                         </TableCell>
-                        <TableCell>{isContested ? <b>Yes</b> : 'No'}</TableCell>
+                        <TableCell>{isContested ? <b>Yes</b> : "No"}</TableCell>
                       </TableRow>
-                    )
+                    );
                   })}
                 </TableBody>
               </Table>
             </TableContainer>
           </>
-        )
+        );
       default:
         return (
-          <Grid
-            container
-            direction="row"
-            spacing={6}
-          >
+          <Grid container direction="row" spacing={6}>
             <Grid item lg={8}>
-              <h3>Question {questionIndex + 1} of {questions.length}</h3>
+              <h3>
+                Question {questionIndex + 1} of {questions.length}
+              </h3>
 
               <GameArea />
             </Grid>
@@ -288,16 +291,16 @@ const Quiz = ({quizName, questions}) => {
               <AnswerArea />
             </Grid>
           </Grid>
-        )
+        );
     }
-  }
+  };
   return (
     <Container maxWidth="md">
       <h1>{quizName}</h1>
 
       <QuizBody />
     </Container>
-  )
-}
+  );
+};
 
-export default Quiz
+export default Quiz;
