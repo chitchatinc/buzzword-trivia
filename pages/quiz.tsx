@@ -1,6 +1,6 @@
 import {useRouter} from 'next/router'
 import {Button, Container, Grid, Input} from '@material-ui/core'
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 
 const fs = require('fs')
 const readline = require('readline')
@@ -22,13 +22,15 @@ export const getServerSideProps = async (context) => {
   let question = {prompt: ''}
   for await (const line of rl) {
     if (line.startsWith('ANSWER')) {
-      question['answer'] = line.replace('ANSWER: ', '')
+      question['answer'] = line
+        .replace('ANSWER: ', '')
       question.prompt = question.prompt.trim()
       questions.push(question)
 
       question = {prompt: ''}
     } else {
-      question['prompt'] += ` ${line}`
+      // replace everything in brackets or parantheses
+      question['prompt'] += ` ${line.replace(/\((.*?)\)\s+|\[(.*?)\]\s+/g, '')}`
     }
     if (questions.length > 1) {
       break
@@ -56,6 +58,14 @@ const Quiz = ({questions}) => {
   let inputRef = useRef(null)
 
   const {prompt, answer} = questions[questionIndex]
+
+  useEffect(() => {
+    // autofocus on the first button
+    const buttons = document.querySelectorAll('button')
+    if (buttons && buttons.length > 0) {
+      buttons[0].focus()
+    }
+  })
 
   const answerFn = (answer) => {
     setAnswers([...answers, answer])
@@ -122,12 +132,14 @@ const Quiz = ({questions}) => {
       return <></>
     }
 
-    const yourAnswer = answers[answers.length - 1]
-    const isCorrect = answer.trim().toLowerCase() === yourAnswer.trim().toLowerCase()
+    const answerIndex = answers.length - 1
+    const correctAnswer = questions[answerIndex].answer
+    const yourAnswer = answers[answerIndex]
+    const isCorrect = correctAnswer.trim().toLowerCase() === yourAnswer.trim().toLowerCase()
 
     return (
       <>
-        <p>Correct Answer: {answer}</p>
+        <p>Correct Answer: {correctAnswer}</p>
         <p>
           Your response: {yourAnswer} 
           {isCorrect ? <b style={{color: 'green'}}> (Correct)</b> : <b style={{color: 'red'}}> (Incorrect)</b>}
