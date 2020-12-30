@@ -234,6 +234,56 @@ const Quiz = ({ quizName, questions }) => {
     )
   }
 
+  const Result = () => {
+    const numCorrectAnswers = answers.reduce(
+      (numCorrectAnswers, { isCorrect }) => {
+        return isCorrect ? numCorrectAnswers + 1 : numCorrectAnswers
+      },
+      0
+    )
+    const totalAnswers = answers.length
+
+    const HeaderCell = ({ children }) => (
+      <TableCell style={{ fontWeight: '800' }}>{children}</TableCell>
+    )
+
+    return (
+      <>
+        <p>
+          You got {numCorrectAnswers} out of {totalAnswers} questions correct (
+          {Math.round((100.0 * numCorrectAnswers) / totalAnswers)}
+          %)
+        </p>
+        <TableContainer style={{ marginTop: '28px' }}>
+          <Table size="small">
+            <TableHead>
+              <HeaderCell />
+              <HeaderCell>Correct Answer</HeaderCell>
+              <HeaderCell>Your Answer</HeaderCell>
+              <HeaderCell>Contested?</HeaderCell>
+            </TableHead>
+            <TableBody>
+              {answers.map((answer, index) => {
+                const { input, correctAnswer, isCorrect, isContested } = answer
+                return (
+                  <TableRow key={index}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{correctAnswer}</TableCell>
+                    <TableCell>
+                      {input}
+                      <IsCorrectText isCorrect={isCorrect} />
+                    </TableCell>
+                    <TableCell>{isContested ? <b>Yes</b> : 'No'}</TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </>
+    )
+  }
+
   const QuizBody = () => {
     switch (gameState) {
       case GameState.INITIAL:
@@ -248,54 +298,7 @@ const Quiz = ({ quizName, questions }) => {
           </Button>
         )
       case GameState.VIEW_RESULTS:
-        const numCorrectAnswers = answers.reduce(
-          (numCorrectAnswers, { isCorrect }) => {
-            return isCorrect ? numCorrectAnswers + 1 : numCorrectAnswers
-          },
-          0
-        )
-        const totalAnswers = answers.length
-
-        return (
-          <>
-            <p>
-              You got {numCorrectAnswers} out of {totalAnswers} questions
-              correct ({Math.round((100.0 * numCorrectAnswers) / totalAnswers)}
-              %)
-            </p>
-            <TableContainer component={Paper} elevation={3}>
-              <Table size="small">
-                <TableHead>
-                  <TableCell align="left"></TableCell>
-                  <TableCell>Correct Answer</TableCell>
-                  <TableCell>Your Answer</TableCell>
-                  <TableCell>Contested?</TableCell>
-                </TableHead>
-                <TableBody>
-                  {answers.map((answer, index) => {
-                    const {
-                      input,
-                      correctAnswer,
-                      isCorrect,
-                      isContested,
-                    } = answer
-                    return (
-                      <TableRow key={index}>
-                        <TableCell>{index + 1}</TableCell>
-                        <TableCell>{correctAnswer}</TableCell>
-                        <TableCell>
-                          {input}
-                          <IsCorrectText isCorrect={isCorrect} />
-                        </TableCell>
-                        <TableCell>{isContested ? <b>Yes</b> : 'No'}</TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </>
-        )
+        return <Result />
       default:
         return (
           <Grid container direction="row" spacing={6}>
