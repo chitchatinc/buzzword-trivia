@@ -8,6 +8,7 @@ import TableContainer from '@material-ui/core/TableContainer'
 import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
+import Head from 'next/head'
 
 const fs = require('fs')
 const readline = require('readline')
@@ -307,6 +308,9 @@ const Quiz = ({ quizName, questions }) => {
   }
   return (
     <Container maxWidth="md">
+      <Head>
+        <title>{quizName}</title>
+      </Head>
       <h1>{quizName}</h1>
 
       <QuizBody />
