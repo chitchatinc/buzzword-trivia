@@ -14,7 +14,7 @@ export const getStaticProps = async () => {
 
 const Home = ({ filenames }) => {
   return (
-    <div className="container">
+    <>
       <Head>
         <title>Chit Chat Trivia Time</title>
       </Head>
@@ -28,7 +28,7 @@ const Home = ({ filenames }) => {
           {filenames.map((filename, i) => {
             const name = encodeURIComponent(filename)
             return (
-              <a href={`/quiz?name=${name}`} className="row" key={i}>
+              <a href={`/quiz?name=${name}`} key={i}>
                 {filename}
               </a>
             )
@@ -65,7 +65,7 @@ const Home = ({ filenames }) => {
           font-size: 1.5rem;
         }
       `}</style>
-    </div>
+    </>
   )
 }
 
