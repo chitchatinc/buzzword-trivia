@@ -57,9 +57,10 @@ const Quiz = ({questions}) => {
   const {prompt, answer} = questions[questionIndex]
 
   useEffect(() => {
-    // autofocus on the first button
+    // autofocus on the first button if no input is present
     const buttons = document.querySelectorAll('button')
-    if (buttons && buttons.length > 0) {
+    const inputs = document.querySelectorAll('input')
+    if (buttons.length > 0 && inputs.length === 0) {
       buttons[0].focus()
     }
 
@@ -82,7 +83,14 @@ const Quiz = ({questions}) => {
 
   const guessFn = () => {
     setGameState(GameState.GUESSED)
-    setAnswers([...answers, inputRef.current.value])
+
+    const input = inputRef.current.value || ''
+    const isCorrect = answer
+      .replace(/\((.*?)\)|\[(.*?)\]/g, '')
+      .trim()
+      .toLowerCase() === input.trim().toLowerCase()
+
+    setAnswers([...answers, {input, isCorrect}])
   }
 
   const nextQuestionFn = () => {
@@ -167,19 +175,26 @@ const Quiz = ({questions}) => {
 
     const answerIndex = answers.length - 1
     const correctAnswer = questions[answerIndex].answer
-    const yourAnswer = answers[answerIndex] || ''
-    const isCorrect = correctAnswer
-      .replace(/\((.*?)\)|\[(.*?)\]/g, '')
-      .trim()
-      .toLowerCase() === yourAnswer.trim().toLowerCase()
+    const yourAnswer = answers[answerIndex]
 
     return (
       <>
         <p>Correct Answer: {correctAnswer}</p>
         <p>
-          Your response: {yourAnswer}
-          {isCorrect ? <b style={{color: 'green'}}> (Correct)</b> : <b style={{color: 'red'}}> (Incorrect)</b>}
+          Your response: {yourAnswer.input}
+          {yourAnswer.isCorrect ? <b style={{color: 'green'}}> (Correct)</b> : <b style={{color: 'red'}}> (Incorrect)</b>}
         </p>
+        {!yourAnswer.isCorrect && (
+          <Button
+            variant="contained"
+            onClick={() => {
+              yourAnswer.isCorrect = true
+              setAnswers([...answers])
+            }}
+          >
+            Override
+          </Button>
+        )}
       </>
     )
   }
