@@ -104,24 +104,6 @@ const Quiz = ({quizName, questions}) => {
     setQuestionIndex(questionIndex + 1)
   }
 
-  const AnswerInput = () => {
-    const onKeyPressFn = (event) => {
-      if (event.key === "Enter") {
-        guessFn()
-      }
-    }
-
-    return (
-      <Input
-        placeholder="Your answer..."
-        fullWidth
-        onKeyPress={onKeyPressFn} 
-        inputRef={inputRef}
-        autoFocus
-      />
-    )
-  }
-
   const AnswerTimer = () => {
     const [timer, setTimer] = useState(15)
     useEffect(() => {
@@ -153,7 +135,17 @@ const Quiz = ({quizName, questions}) => {
       case GameState.GUESSING:
         return (
           <>
-            <AnswerInput />
+            <Input
+              placeholder="Your answer..."
+              fullWidth
+              onKeyPress={(event) => {
+                if (event.key === "Enter") {
+                  guessFn()
+                }
+              }}
+              inputRef={inputRef}
+              autoFocus
+            />
             <AnswerTimer />
           </>
         )
