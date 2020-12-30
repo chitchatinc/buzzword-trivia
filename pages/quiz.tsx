@@ -62,17 +62,38 @@ const Quiz = ({questions}) => {
     if (buttons && buttons.length > 0) {
       buttons[0].focus()
     }
+
+    const synth = window.speechSynthesis
+    if (gameState === GameState.READING_QUESTION) {
+      const utterance = new SpeechSynthesisUtterance(prompt)
+      utterance.rate = 0.9
+      utterance.onend = () => {
+        setGameState(GameState.GUESSING)
+      }
+      synth.speak(utterance)
+    }
   })
 
-  const answerFn = (answer) => {
-    setAnswers([...answers, answer])
+  const buzzFn = () => {
+    setGameState(GameState.GUESSING)
+    const synth = window.speechSynthesis
+    synth.cancel()
+  }
+
+  const guessFn = (answer) => {
     setGameState(GameState.GUESSED)
+    setAnswers([...answers, answer])
+  }
+
+  const nextQuestionFn = () => {
+    setGameState(GameState.READING_QUESTION)
+    setQuestionIndex(questionIndex + 1)
   }
 
   const AnswerInput = () => {
     const onKeyPressFn = (event) => {
       if (event.key === "Enter") {
-        answerFn(inputRef.current.value)
+        guessFn(inputRef.current.value)
       }
     }
 
@@ -87,22 +108,40 @@ const Quiz = ({questions}) => {
     )
   }
 
+  const AnswerTimer = () => {
+    const [timer, setTimer] = useState(15)
+    useEffect(() => {
+      if (timer <= 0) {
+        guessFn()
+      }
+
+      const intervalId = setInterval(() => {
+        setTimer(timer - 1)
+      }, 1000)
+
+      return () => clearInterval(intervalId)
+    }, [timer])
+
+    return (<div style={{marginTop: '12px'}}>0: {timer}</div>)
+  }
+
   const GameArea = () => {
     switch (gameState) {
       case GameState.READING_QUESTION:
         return (
           <Button
             variant="contained"
-            onClick={() => {
-              setGameState(GameState.GUESSING)
-            }}
+            onClick={buzzFn}
           >
             Buzz
           </Button>
         )
       case GameState.GUESSING:
         return (
-          <AnswerInput inputRef={inputRef} gameState={gameState} answerFn={answerFn} />
+          <>
+            <AnswerInput />
+            <AnswerTimer />
+          </>
         )
       case GameState.GUESSED:
       default:
@@ -113,10 +152,7 @@ const Quiz = ({questions}) => {
         return (
           <Button
             variant="contained"
-            onClick={() => {
-              setGameState(GameState.READING_QUESTION)
-              setQuestionIndex(questionIndex + 1)
-            }}
+            onClick={nextQuestionFn}
           >
             Next question
           </Button>
@@ -131,7 +167,7 @@ const Quiz = ({questions}) => {
 
     const answerIndex = answers.length - 1
     const correctAnswer = questions[answerIndex].answer
-    const yourAnswer = answers[answerIndex]
+    const yourAnswer = answers[answerIndex] || ''
     const isCorrect = correctAnswer
       .replace(/\((.*?)\)|\[(.*?)\]/g, '')
       .trim()
@@ -141,7 +177,7 @@ const Quiz = ({questions}) => {
       <>
         <p>Correct Answer: {correctAnswer}</p>
         <p>
-          Your response: {yourAnswer} 
+          Your response: {yourAnswer}
           {isCorrect ? <b style={{color: 'green'}}> (Correct)</b> : <b style={{color: 'red'}}> (Incorrect)</b>}
         </p>
       </>
@@ -172,7 +208,7 @@ const Quiz = ({questions}) => {
       >
         <Grid item lg={8}>
           <p>Question {questionIndex + 1} of {questions.length}</p>
-          <p>{prompt}</p>
+          {/* <p>{prompt}</p> */}
 
           <GameArea />
         </Grid>
