@@ -17,7 +17,6 @@ const Home = ({ filenames }) => {
     <div className="container">
       <Head>
         <title>Chit Chat Trivia Time</title>
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <Container maxWidth="md">
