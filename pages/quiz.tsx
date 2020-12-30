@@ -234,11 +234,6 @@ const Quiz = ({quizName, questions}) => {
           </Button>
         )
       case GameState.VIEW_RESULTS:
-        // const mockAnswers = [
-        //   {input: 'Horus', correctAnswer: 'Horus', isCorrect: true, isContested: true},
-        //   {input: 'Simpson', correctAnswer: 'Beowulf', isCorrect: false},
-        // ]
-
         const numCorrectAnswers = answers.reduce((numCorrectAnswers, {isCorrect}) => {
           return isCorrect ? numCorrectAnswers + 1 : numCorrectAnswers
         }, 0)
