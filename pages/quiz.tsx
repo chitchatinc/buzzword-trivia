@@ -1,5 +1,5 @@
 import {useRouter} from 'next/router'
-import {Button, Container, Grid, Input} from '@material-ui/core'
+import {Box, Button, Container, Grid, Input} from '@material-ui/core'
 import React, {useState, useRef, useEffect} from 'react';
 
 const fs = require('fs')
@@ -160,12 +160,14 @@ const Quiz = ({quizName, questions}) => {
         return (
           <>
             <p>{prompt}</p>
-            <Button
-              variant="contained"
-              onClick={nextQuestionFn}
-            >
-              Next question
-            </Button>
+            <Box paddingTop={1}>
+              <Button
+                variant="contained"
+                onClick={nextQuestionFn}
+              >
+                Next question
+              </Button>
+            </Box>
           </>
         )
     }
@@ -221,7 +223,7 @@ const Quiz = ({quizName, questions}) => {
         <Grid
           container
           direction="row"
-          spacing={4}
+          spacing={6}
         >
           <Grid item lg={8}>
             <h3>Question {questionIndex + 1} of {questions.length}</h3>
