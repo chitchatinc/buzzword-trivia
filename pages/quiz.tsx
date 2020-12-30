@@ -80,9 +80,9 @@ const Quiz = ({questions}) => {
     synth.cancel()
   }
 
-  const guessFn = (answer) => {
+  const guessFn = () => {
     setGameState(GameState.GUESSED)
-    setAnswers([...answers, answer])
+    setAnswers([...answers, inputRef.current.value])
   }
 
   const nextQuestionFn = () => {
@@ -93,7 +93,7 @@ const Quiz = ({questions}) => {
   const AnswerInput = () => {
     const onKeyPressFn = (event) => {
       if (event.key === "Enter") {
-        guessFn(inputRef.current.value)
+        guessFn()
       }
     }
 
