@@ -192,7 +192,7 @@ const Quiz = ({questions}) => {
               setAnswers([...answers])
             }}
           >
-            Override
+            Contest
           </Button>
         )}
       </>
