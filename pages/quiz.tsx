@@ -30,10 +30,7 @@ export const getServerSideProps = async (context) => {
       question = {prompt: ''}
     } else {
       // replace everything in brackets or parantheses
-      question['prompt'] += ` ${line.replace(/\((.*?)\)\s+|\[(.*?)\]\s+/g, '')}`
-    }
-    if (questions.length > 1) {
-      break
+      question['prompt'] += ` ${line.replace(/\((.*?)\)|\[(.*?)\]/g, '')}`
     }
   }
 
@@ -135,7 +132,10 @@ const Quiz = ({questions}) => {
     const answerIndex = answers.length - 1
     const correctAnswer = questions[answerIndex].answer
     const yourAnswer = answers[answerIndex]
-    const isCorrect = correctAnswer.trim().toLowerCase() === yourAnswer.trim().toLowerCase()
+    const isCorrect = correctAnswer
+      .replace(/\((.*?)\)|\[(.*?)\]/g, '')
+      .trim()
+      .toLowerCase() === yourAnswer.trim().toLowerCase()
 
     return (
       <>

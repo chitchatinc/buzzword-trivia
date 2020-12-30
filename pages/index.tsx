@@ -1,10 +1,7 @@
 import Head from 'next/head'
-import Link from "next/link";
 import {QUESTIONS_DIR} from './quiz'
 
 const fs = require('fs')
-
-// export const QUESTIONS_DIR = '/Users/penny/trivia/questions'
 
 export const getStaticProps = async () => {
   const filenames = fs.readdirSync(QUESTIONS_DIR)
@@ -33,25 +30,10 @@ const Home = ({filenames}) => {
         <div className="grid">
           {filenames.map((filename, i) => {
             const name = encodeURIComponent(filename)
-            return (
-              <Link key={i} href={{pathname: '/quiz', query: {name}}}>
-                {filename}
-              </Link>)
-            // return (<a href={`/quiz?name=${quizName}`} className="row" key={i}>{filename}</a>)
+            return (<a href={`/quiz?name=${name}`} className="row" key={i}>{filename}</a>)
           })}
         </div>
       </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
-      </footer>
 
       <style jsx>{`
         .container {
@@ -91,7 +73,7 @@ const Home = ({filenames}) => {
           align-items: center;
         }
 
-        a {
+        .row {
           color: inherit;
           text-decoration: none;
           margin-bottom: 0.5rem;
