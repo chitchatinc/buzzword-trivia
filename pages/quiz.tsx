@@ -45,7 +45,8 @@ enum GameState {
   INITIAL,
   READING_QUESTION,
   GUESSING,
-  GUESSED
+  GUESSED,
+  VIEW_RESULTS,
 }
 
 const Quiz = ({quizName, questions}) => {
@@ -206,35 +207,43 @@ const Quiz = ({quizName, questions}) => {
     )
   }
 
+  const QuizBody = () => {
+    switch (gameState) {
+      case GameState.INITIAL:
+        return (
+          <Button
+            variant="contained"
+            onClick={() => {
+              setGameState(GameState.READING_QUESTION)
+            }}
+          >
+            Start
+          </Button>
+        )
+      default:
+        return (
+          <Grid
+            container
+            direction="row"
+            spacing={6}
+          >
+            <Grid item lg={8}>
+              <h3>Question {questionIndex + 1} of {questions.length}</h3>
+
+              <GameArea />
+            </Grid>
+            <Grid item lg={4}>
+              <AnswerArea />
+            </Grid>
+          </Grid>
+        )
+    }
+  }
   return (
     <Container maxWidth="md">
       <h1>{quizName}</h1>
 
-      {gameState === GameState.INITIAL ? (
-        <Button
-          variant="contained"
-          onClick={() => {
-            setGameState(GameState.READING_QUESTION)
-          }}
-        >
-          Start
-        </Button>
-      ) : (
-        <Grid
-          container
-          direction="row"
-          spacing={6}
-        >
-          <Grid item lg={8}>
-            <h3>Question {questionIndex + 1} of {questions.length}</h3>
-
-            <GameArea />
-          </Grid>
-          <Grid item lg={4}>
-            <AnswerArea />
-          </Grid>
-        </Grid>
-      )}
+      <QuizBody />
     </Container>
   )
 }
