@@ -41,7 +41,6 @@ export const getServerSideProps = async (context) => {
     }
   }
 
-  const data = fs.readFileSync(`${QUESTIONS_DIR}/${quizName}`, 'utf8')
   return {
     props: {quizName, questions}
   }
