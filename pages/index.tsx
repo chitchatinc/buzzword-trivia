@@ -1,16 +1,16 @@
-import Head from "next/head";
-import { Container, Grid } from "@material-ui/core";
-import naturalSort from "javascript-natural-sort";
-import { QUESTIONS_DIR } from "./quiz";
+import Head from 'next/head'
+import { Container, Grid } from '@material-ui/core'
+import naturalSort from 'javascript-natural-sort'
+import { QUESTIONS_DIR } from './quiz'
 
-const fs = require("fs");
+const fs = require('fs')
 
 export const getStaticProps = async () => {
-  const filenames = fs.readdirSync(QUESTIONS_DIR).sort(naturalSort);
+  const filenames = fs.readdirSync(QUESTIONS_DIR).sort(naturalSort)
   return {
     props: { filenames },
-  };
-};
+  }
+}
 
 const Home = ({ filenames }) => {
   return (
@@ -27,12 +27,12 @@ const Home = ({ filenames }) => {
           <p className="description">Pick a game...</p>
 
           {filenames.map((filename, i) => {
-            const name = encodeURIComponent(filename);
+            const name = encodeURIComponent(filename)
             return (
               <a href={`/quiz?name=${name}`} className="row" key={i}>
                 {filename}
               </a>
-            );
+            )
           })}
         </Grid>
       </Container>
@@ -67,7 +67,7 @@ const Home = ({ filenames }) => {
         }
       `}</style>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
