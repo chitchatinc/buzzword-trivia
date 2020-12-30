@@ -83,6 +83,10 @@ const Quiz = ({ quizName, questions }) => {
     }
   })
 
+  const startFn = () => {
+    setGameState(GameState.READING_QUESTION)
+  }
+
   const buzzFn = () => {
     setGameState(GameState.GUESSING)
     const synth = window.speechSynthesis
@@ -100,9 +104,23 @@ const Quiz = ({ quizName, questions }) => {
     setAnswers([...answers, { input, correctAnswer, isCorrect }])
   }
 
+  const viewResultsFn = () => {
+    setGameState(GameState.VIEW_RESULTS)
+  }
+
   const nextQuestionFn = () => {
     setGameState(GameState.READING_QUESTION)
     setQuestionIndex(questionIndex + 1)
+  }
+
+  const ButtonWrapper = ({ onClick, children }) => {
+    return (
+      <Box marginTop={4}>
+        <Button variant="contained" onClick={onClick}>
+          {children}
+        </Button>
+      </Box>
+    )
   }
 
   const AnswerTimer = () => {
@@ -136,11 +154,7 @@ const Quiz = ({ quizName, questions }) => {
   const GameArea = () => {
     switch (gameState) {
       case GameState.READING_QUESTION:
-        return (
-          <Button variant="contained" onClick={buzzFn}>
-            Buzz
-          </Button>
-        )
+        return <ButtonWrapper onClick={buzzFn}>Buzz</ButtonWrapper>
       case GameState.GUESSING:
         return (
           <>
@@ -162,14 +176,12 @@ const Quiz = ({ quizName, questions }) => {
       default:
         if (questionIndex >= questions.length - 1) {
           return (
-            <Button
-              variant="contained"
-              onClick={() => {
-                setGameState(GameState.VIEW_RESULTS)
-              }}
-            >
-              View results
-            </Button>
+            <>
+              <p>{prompt}</p>
+              <ButtonWrapper onClick={viewResultsFn}>
+                View results
+              </ButtonWrapper>
+            </>
           )
         }
 
@@ -177,9 +189,9 @@ const Quiz = ({ quizName, questions }) => {
           <>
             <p>{prompt}</p>
             <Box paddingTop={1}>
-              <Button variant="contained" onClick={nextQuestionFn}>
+              <ButtonWrapper onClick={nextQuestionFn}>
                 Next question
-              </Button>
+              </ButtonWrapper>
             </Box>
           </>
         )
@@ -195,10 +207,6 @@ const Quiz = ({ quizName, questions }) => {
   }
 
   const AnswerArea = () => {
-    if (answers.length === 0) {
-      return <></>
-    }
-
     const answerIndex = answers.length - 1
     const correctAnswer = questions[answerIndex].answer
     const yourAnswer = answers[answerIndex]
@@ -212,8 +220,7 @@ const Quiz = ({ quizName, questions }) => {
           <IsCorrectText isCorrect={yourAnswer.isCorrect} />
         </p>
         {!yourAnswer.isCorrect && (
-          <Button
-            variant="contained"
+          <ButtonWrapper
             onClick={() => {
               yourAnswer.isCorrect = true
               yourAnswer.isContested = true
@@ -221,7 +228,7 @@ const Quiz = ({ quizName, questions }) => {
             }}
           >
             Contest
-          </Button>
+          </ButtonWrapper>
         )}
       </>
     )
@@ -233,9 +240,9 @@ const Quiz = ({ quizName, questions }) => {
         return (
           <Button
             variant="contained"
-            onClick={() => {
-              setGameState(GameState.READING_QUESTION)
-            }}
+            color="primary"
+            onClick={startFn}
+            style={{ marginTop: '1rem' }}
           >
             Start
           </Button>
@@ -299,22 +306,39 @@ const Quiz = ({ quizName, questions }) => {
 
               <GameArea />
             </Grid>
-            <Grid item lg={4}>
-              <AnswerArea />
-            </Grid>
+            {answers.length > 0 && (
+              <Grid
+                item
+                lg={4}
+                style={{
+                  backgroundColor: '#add8e657',
+                  borderRadius: '5px',
+                  height: '320px',
+                }}
+              >
+                <AnswerArea />
+              </Grid>
+            )}
           </Grid>
         )
     }
   }
   return (
-    <Container maxWidth="md">
-      <Head>
-        <title>{quizName}</title>
-      </Head>
-      <h1>{quizName}</h1>
+    <>
+      <Container maxWidth="md">
+        <Head>
+          <title>{quizName}</title>
+        </Head>
+        <h1>{quizName}</h1>
 
-      <QuizBody />
-    </Container>
+        <QuizBody />
+      </Container>
+      <style jsx>{`
+        h3 {
+          margin-top: 4px;
+        }
+      `}</style>
+    </>
   )
 }
 
