@@ -188,11 +188,9 @@ const Quiz = ({ quizName, questions }) => {
         return (
           <>
             <p>{prompt}</p>
-            <Box paddingTop={1}>
-              <ButtonWrapper onClick={nextQuestionFn}>
-                Next question
-              </ButtonWrapper>
-            </Box>
+            <ButtonWrapper onClick={nextQuestionFn}>
+              Next question
+            </ButtonWrapper>
           </>
         )
     }
@@ -213,7 +211,7 @@ const Quiz = ({ quizName, questions }) => {
 
     return (
       <>
-        <h3>Previous question result</h3>
+        <h3>{`Result for question ${answerIndex + 1}`}</h3>
         <p>Correct Answer: {correctAnswer}</p>
         <p>
           Your response: {yourAnswer.input}
