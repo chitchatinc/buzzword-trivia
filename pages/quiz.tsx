@@ -1,6 +1,13 @@
 import {useRouter} from 'next/router'
-import {Box, Button, Container, Grid, Input} from '@material-ui/core'
-import React, {useState, useRef, useEffect} from 'react';
+import {Box, Button, Container, Grid, Input, Tab} from '@material-ui/core'
+import React, {useState, useRef, useEffect} from 'react'
+import Table from '@material-ui/core/Table'
+import TableBody from '@material-ui/core/TableBody'
+import TableCell from '@material-ui/core/TableCell'
+import TableContainer from '@material-ui/core/TableContainer'
+import TableHead from '@material-ui/core/TableHead'
+import TableRow from '@material-ui/core/TableRow'
+import Paper from '@material-ui/core/Paper'
 
 const fs = require('fs')
 const readline = require('readline')
@@ -86,12 +93,10 @@ const Quiz = ({quizName, questions}) => {
     setGameState(GameState.GUESSED)
 
     const input = inputRef.current.value || ''
-    const isCorrect = answer
-      .replace(/\((.*?)\)|\[(.*?)\]/g, '')
-      .trim()
-      .toLowerCase() === input.trim().toLowerCase()
+    const correctAnswer = answer.replace(/\((.*?)\)|\[(.*?)\]/g, '')
+    const isCorrect = correctAnswer.trim().toLowerCase() === input.trim().toLowerCase()
 
-    setAnswers([...answers, {input, isCorrect}])
+    setAnswers([...answers, {input, correctAnswer, isCorrect}])
   }
 
   const nextQuestionFn = () => {
@@ -155,7 +160,16 @@ const Quiz = ({quizName, questions}) => {
       case GameState.GUESSED:
       default:
         if (questionIndex >= questions.length - 1) {
-          return <i>No more questions</i>
+          return (
+            <Button
+              variant="contained"
+              onClick={() => {
+                setGameState(GameState.VIEW_RESULTS)
+              }}
+            >
+              View results
+            </Button>
+          )
         }
 
         return (
@@ -174,6 +188,14 @@ const Quiz = ({quizName, questions}) => {
     }
   }
 
+  const IsCorrectText = ({isCorrect}) => {
+    if (isCorrect) {
+      return <b style={{color: 'green'}}> (Correct)</b>
+    } else {
+      return <b style={{color: 'red'}}> (Incorrect)</b>
+    }
+  }
+
   const AnswerArea = () => {
     if (answers.length === 0) {
       return <></>
@@ -189,7 +211,7 @@ const Quiz = ({quizName, questions}) => {
         <p>Correct Answer: {correctAnswer}</p>
         <p>
           Your response: {yourAnswer.input}
-          {yourAnswer.isCorrect ? <b style={{color: 'green'}}> (Correct)</b> : <b style={{color: 'red'}}> (Incorrect)</b>}
+          <IsCorrectText isCorrect={yourAnswer.isCorrect} />
         </p>
         {!yourAnswer.isCorrect && (
           <Button
@@ -219,6 +241,50 @@ const Quiz = ({quizName, questions}) => {
           >
             Start
           </Button>
+        )
+      case GameState.VIEW_RESULTS:
+        // const mockAnswers = [
+        //   {input: 'Horus', correctAnswer: 'Horus', isCorrect: true, isContested: true},
+        //   {input: 'Simpson', correctAnswer: 'Beowulf', isCorrect: false},
+        // ]
+
+        const numCorrectAnswers = answers.reduce((numCorrectAnswers, {isCorrect}) => {
+          return isCorrect ? numCorrectAnswers + 1 : numCorrectAnswers
+        }, 0)
+        const totalAnswers = answers.length
+
+        return (
+          <>
+            <p>
+              You got {numCorrectAnswers} out of {totalAnswers} questions correct ({Math.round(100.0 * numCorrectAnswers / totalAnswers)}%)
+            </p>
+            <TableContainer component={Paper} elevation={3}>
+              <Table size="small">
+                <TableHead>
+                  <TableCell align="left"></TableCell>
+                  <TableCell>Correct Answer</TableCell>
+                  <TableCell>Your Answer</TableCell>
+                  <TableCell>Contested?</TableCell>
+                </TableHead>
+                <TableBody>
+                  {answers.map((answer, index) => {
+                    const {input, correctAnswer, isCorrect, isContested} = answer
+                    return (
+                      <TableRow key={index}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{correctAnswer}</TableCell>
+                        <TableCell>
+                          {input}
+                          <IsCorrectText isCorrect={isCorrect} />
+                        </TableCell>
+                        <TableCell>{isContested ? <b>Yes</b> : 'No'}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </>
         )
       default:
         return (
