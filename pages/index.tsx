@@ -1,11 +1,12 @@
 import Head from 'next/head'
 import {Container, Grid} from '@material-ui/core'
+import naturalSort from 'javascript-natural-sort'
 import {QUESTIONS_DIR} from './quiz'
 
 const fs = require('fs')
 
 export const getStaticProps = async () => {
-  const filenames = fs.readdirSync(QUESTIONS_DIR)
+  const filenames = fs.readdirSync(QUESTIONS_DIR).sort(naturalSort)
   return {
     props: {filenames}
   }
