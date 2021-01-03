@@ -74,12 +74,25 @@ const Quiz = ({ quizName, questions }) => {
 
     const synth = window.speechSynthesis
     if (gameState === GameState.READING_QUESTION) {
-      const utterance = new SpeechSynthesisUtterance(prompt)
-      utterance.rate = 0.9
-      utterance.onend = () => {
-        setGameState(GameState.GUESSING)
-      }
-      synth.speak(utterance)
+      // get the preferred voice in chrome
+      const preferredVoices = synth
+        .getVoices()
+        .filter((voice) => voice.name === 'Google UK English Male')
+
+      const sentences = prompt.split('.').filter((sentence) => !!sentence)
+      sentences.forEach((sentence, index) => {
+        const utterance = new SpeechSynthesisUtterance(sentence)
+        if (preferredVoices && preferredVoices.length > 0) {
+          utterance.voice = preferredVoices[0]
+        }
+        synth.speak(utterance)
+
+        if (index === sentences.length - 1) {
+          utterance.onend = () => {
+            setGameState(GameState.GUESSING)
+          }
+        }
+      })
     }
   })
 
