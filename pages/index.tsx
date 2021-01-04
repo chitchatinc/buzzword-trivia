@@ -27,8 +27,12 @@ const Home = ({ filenames }) => {
 
           {filenames.map((filename, i) => {
             const name = encodeURIComponent(filename)
+            let href =
+              process.env.NODE_ENV === 'production'
+                ? `/buzzword-trivia/quiz/${name}.html`
+                : `/quiz/${name}`
             return (
-              <a href={`/quiz/${name}`} key={i}>
+              <a href={href} key={i}>
                 {filename}
               </a>
             )

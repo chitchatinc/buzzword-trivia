@@ -21,11 +21,14 @@ const readline = require('readline')
 export const QUESTIONS_DIR = path.join(process.cwd(), 'questions')
 
 export const getStaticPaths = async () => {
-  const paths = fs
-    .readdirSync(QUESTIONS_DIR)
-    .map((quizName) => encodeURIComponent(quizName))
-    .map((quizName) => ({ params: { quizName } }))
-
+  let filenames = fs.readdirSync(QUESTIONS_DIR)
+  if (process.env.NODE_ENV === 'development') {
+    // github pages seems to automatically encode file name, resulting in
+    // double encoding if we encoed it here; whereas in dev we need to explicitly
+    // encode it
+    filenames = filenames.map((quizName) => encodeURIComponent(quizName))
+  }
+  const paths = filenames.map((quizName) => ({ params: { quizName } }))
   return {
     paths,
     fallback: false,
