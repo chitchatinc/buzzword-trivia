@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 # only works on my computer...
+yarn build
 rm -fr ../gh-pages/buzzword-trivia/{404.html,_next,index.html,quiz}
 cp -a out/. ../gh-pages/buzzword-trivia
