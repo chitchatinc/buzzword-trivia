@@ -9,6 +9,10 @@ import TableHead from '@material-ui/core/TableHead'
 import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import Head from 'next/head'
+import Collapse from '@material-ui/core/Collapse'
+import IconButton from '@material-ui/core/IconButton'
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp'
 
 const fs = require('fs')
 const readline = require('readline')
@@ -110,7 +114,8 @@ const Quiz = ({ quizName, questions }) => {
     setGameState(GameState.GUESSED)
 
     const input = inputRef.current.value || ''
-    const correctAnswer = answer.replace(/\((.*?)\)|\[(.*?)\]/g, '')
+    // don't match anything in [] or () or "the" in the beginning
+    const correctAnswer = answer.replace(/\((.*?)\)|\[(.*?)\]|^the|^The/g, '')
     const isCorrect =
       correctAnswer.trim().toLowerCase() === input.trim().toLowerCase()
 
@@ -258,6 +263,45 @@ const Quiz = ({ quizName, questions }) => {
       <TableCell style={{ fontWeight: '800' }}>{children}</TableCell>
     )
 
+    const BodyCell = ({ children }) => (
+      <TableCell style={{ borderBottom: 'unset' }}>{children}</TableCell>
+    )
+
+    const Row = ({ answer, index }) => {
+      const { input, correctAnswer, isCorrect, isContested } = answer
+      const { prompt } = questions[index]
+      const [open, setOpen] = React.useState(false)
+
+      return (
+        <>
+          <TableRow key={index}>
+            <BodyCell>
+              <IconButton
+                aria-label="expand row"
+                size="small"
+                onClick={() => setOpen(!open)}
+              >
+                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </BodyCell>
+            <BodyCell>{correctAnswer}</BodyCell>
+            <BodyCell>
+              {input}
+              <IsCorrectText isCorrect={isCorrect} />
+            </BodyCell>
+            <BodyCell>{isContested ? <b>Yes</b> : 'No'}</BodyCell>
+          </TableRow>
+          <TableRow>
+            <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+              <Collapse in={open} timeout="auto" unmountOnExit>
+                <Box margin={1}>{prompt}</Box>
+              </Collapse>
+            </TableCell>
+          </TableRow>
+        </>
+      )
+    }
+
     return (
       <>
         <p>
@@ -267,6 +311,12 @@ const Quiz = ({ quizName, questions }) => {
         </p>
         <TableContainer style={{ marginTop: '28px' }}>
           <Table size="small">
+            <colgroup>
+              <col style={{ width: '5%' }} />
+              <col style={{ width: '40%' }} />
+              <col style={{ width: '40%' }} />
+              <col style={{ width: '15%' }} />
+            </colgroup>
             <TableHead>
               <HeaderCell />
               <HeaderCell>Correct Answer</HeaderCell>
@@ -275,18 +325,7 @@ const Quiz = ({ quizName, questions }) => {
             </TableHead>
             <TableBody>
               {answers.map((answer, index) => {
-                const { input, correctAnswer, isCorrect, isContested } = answer
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{correctAnswer}</TableCell>
-                    <TableCell>
-                      {input}
-                      <IsCorrectText isCorrect={isCorrect} />
-                    </TableCell>
-                    <TableCell>{isContested ? <b>Yes</b> : 'No'}</TableCell>
-                  </TableRow>
-                )
+                return <Row answer={answer} index={index} />
               })}
             </TableBody>
           </Table>
