@@ -15,7 +15,7 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp'
 
 const fs = require('fs')
-var path = require('path')
+const path = require('path')
 const readline = require('readline')
 
 export const QUESTIONS_DIR = path.join(process.cwd(), 'questions')
@@ -170,12 +170,14 @@ const Quiz = ({ quizName, questions }) => {
 
     return (
       <div
-        style={{
-          marginTop: '14px',
-          fontSize: '20px',
-          fontFamily: ['Courier New', 'monospace'],
-          fontWeight: '600',
-        }}
+        style={
+          {
+            marginTop: '14px',
+            fontSize: '20px',
+            fontFamily: ['Courier New', 'monospace'],
+            fontWeight: '600' as '600',
+          } as any
+        }
       >
         0:{timer < 10 ? `0${timer}` : timer}
       </div>
@@ -272,8 +274,8 @@ const Quiz = ({ quizName, questions }) => {
     )
     const totalAnswers = answers.length
 
-    const HeaderCell = ({ children }) => (
-      <TableCell style={{ fontWeight: '800' }}>{children}</TableCell>
+    const HeaderCell = ({ children }: { children?: React.ReactNode }) => (
+      <TableCell style={{ fontWeight: '800' } as any}>{children}</TableCell>
     )
 
     const BodyCell = ({ children }) => (
