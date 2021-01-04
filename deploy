@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# only works on my computer...
+rm -fr ../trivia-deploy/buzzword-trivia
+yarn build
+cp -a out/. ../trivia-deploy/buzzword-trivia
