@@ -7,5 +7,5 @@ Questions are read using [Web Speech API](https://developer.mozilla.org/en-US/do
 Chrome is the preferred browser - it'll read the questions using a nicer voice provided by
 Google instead of the generic robot voice.
 
-Packets are taken from:
+Packets are manually taken from:
 https://ms.quizbowlpackets.com/
