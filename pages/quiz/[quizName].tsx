@@ -15,17 +15,30 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp'
 
 const fs = require('fs')
+var path = require('path')
 const readline = require('readline')
 
-export const QUESTIONS_DIR = '/Users/penny/trivia/questions'
+export const QUESTIONS_DIR = path.join(process.cwd(), 'questions')
 
-export const getServerSideProps = async (context) => {
+export const getStaticPaths = async () => {
+  const paths = fs
+    .readdirSync(QUESTIONS_DIR)
+    .map((quizName) => encodeURIComponent(quizName))
+    .map((quizName) => ({ params: { quizName } }))
+
+  return {
+    paths,
+    fallback: false,
+  }
+}
+
+export const getStaticProps = async (context) => {
   const {
-    query: { name },
+    params: { quizName },
   } = context
-  const quizName = decodeURIComponent(name)
+  const decodedQuizName = decodeURIComponent(quizName)
 
-  const fileStream = fs.createReadStream(`${QUESTIONS_DIR}/${quizName}`)
+  const fileStream = fs.createReadStream(`${QUESTIONS_DIR}/${decodedQuizName}`)
   const rl = readline.createInterface({
     input: fileStream,
     crlDelay: Infinity,
@@ -48,7 +61,7 @@ export const getServerSideProps = async (context) => {
   }
 
   return {
-    props: { quizName, questions },
+    props: { quizName: decodedQuizName, questions },
   }
 }
 

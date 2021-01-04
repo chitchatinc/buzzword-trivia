@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { Container, Grid } from '@material-ui/core'
 import naturalSort from 'javascript-natural-sort'
-import { QUESTIONS_DIR } from './quiz'
+import { QUESTIONS_DIR } from './quiz/[quizName]'
 
 const fs = require('fs')
 
@@ -28,7 +28,7 @@ const Home = ({ filenames }) => {
           {filenames.map((filename, i) => {
             const name = encodeURIComponent(filename)
             return (
-              <a href={`/quiz?name=${name}`} key={i}>
+              <a href={`/quiz/${name}`} key={i}>
                 {filename}
               </a>
             )
